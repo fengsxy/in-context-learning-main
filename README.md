@@ -1,44 +1,46 @@
-This repository contains the code and models for our paper:
+# In-Context Learning with Covariance Study
 
-**What Can Transformers Learn In-Context? A Case Study of Simple Function Classes** <br>
-*Shivam Garg\*, Dimitris Tsipras\*, Percy Liang, Gregory Valiant* <br>
-Paper: http://arxiv.org/abs/2208.01066 <br><br>
+This repository extends the original in-context learning codebase to study how transformers perform with different covariance structures. Added features include:
 
-![](setting.jpg)
+## Key Changes
 
-```bibtex
-    @InProceedings{garg2022what,
-        title={What Can Transformers Learn In-Context? A Case Study of Simple Function Classes},
-        author={Shivam Garg and Dimitris Tsipras and Percy Liang and Gregory Valiant},
-        year={2022},
-        booktitle={arXiv preprint}
-    }
+- Added support for random covariance matrices in data sampling
+- Implemented scale-varying evaluation (c=1,4,9)
+- Added configurations for fixed/random covariance training
+- Extended evaluation framework to test context length generalization
+
+## Configurations
+
+Two main training scenarios:
+- `fixed_cov_*.yaml`: Fixed identity covariance matrix
+- `random_cov_*.yaml`: Random diagonal covariance matrices (λᵢ ~ Exp(1))
+
+Each available in three context lengths: N=40,70,100
+
+## Running Experiments
+
+```bash
+# Train fixed covariance model
+python src/train.py --config configs/fixed_cov_N40.yaml
+
+# Train random covariance model  
+python src/train.py --config configs/random_cov_N40.yaml
+
+# Evaluate models
+python src/eval.py path/to/model/dir
 ```
 
-## Getting started
-You can start by cloning our repository and following the steps below.
+## Key Parameters
 
-1. Install the dependencies for our code using Conda. You may need to adjust the environment YAML file depending on your setup.
+- Model: GPT2 (256 embedding, 12 layers, 8 heads)
+- Dimensions: d=20
+- Context lengths: N={40,70,100}
+- Covariance scales: c={1,4,9}
+- Data: Mean-zero Gaussian features
 
-    ```
-    conda env create -f environment.yml
-    conda activate in-context-learning
-    ```
+## Results
 
-2. Download [model checkpoints](https://github.com/dtsip/in-context-learning/releases/download/initial/models.zip) and extract them in the current directory.
-
-    ```
-    wget https://github.com/dtsip/in-context-learning/releases/download/initial/models.zip
-    unzip models.zip
-    ```
-
-3. [Optional] If you plan to train, populate `conf/wandb.yaml` with you wandb info.
-
-That's it! You can now explore our pre-trained models or train your own. The key entry points
-are as follows (starting from `src`):
-- The `eval.ipynb` notebook contains code to load our own pre-trained models, plot the pre-computed metrics, and evaluate them on new data.
-- `train.py` takes as argument a configuration yaml from `conf` and trains the corresponding model. You can try `python train.py --config conf/toy.yaml` for a quick training run.
-
-# Maintainers
-* [Shivam Garg](https://cs.stanford.edu/~shivamg/)
-* [Dimitris Tsipras](https://dtsipras.com/)
+The evaluation produces metrics for:
+- Fixed covariance testing
+- Random covariance testing (multiple scales)
+- Context length generalization
